@@ -1,0 +1,12 @@
+Steps to run Lesson app:-
+
+step-1 :- Open folder "api" which is inside main folder "skitz23"
+step-2 :- Open command prompt at this location inside "api" folder
+step-3 :- Type "mynodeenv\scripts\activate" command and hit Enter key. (Don't use " (quotes) in command)
+step-4 :- Then run "npm install" in the command prompt
+step-5:- Then run "nodemon app.js" in the command prompt to run the server.
+	You will see output as "Server running at http://localhost:5000/" , It means your server started 	successfully
+step-6:- After starting your server, go back to main folder "skitz23" and double click on file index.html to launch
+	the website.
+
+Thanks.

@@ -1,0 +1,30 @@
+.icon{
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    text-align: center;
+    padding-top: 8px;
+}
+
+.card{
+    border-radius: 24px;
+}
+
+
+.bg-primary-light{
+    background-color: #c8e2ff !important;
+}
+
+.bg-danger-light{
+    background-color: #ffd5d9 !important;
+}
+
+/* .cart {
+    position: fixed;
+    top: 94px;
+    left: 0;
+    right: 0;
+} */

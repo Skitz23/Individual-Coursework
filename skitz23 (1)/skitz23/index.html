@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lessons</title>
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+    integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+    integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+</head>
+
+
+
+<body>
+
+  <div id="app">
+    <section class="lessons">
+      <div class="container py-4">
+        <div class="row">
+          <style>
+            body {
+              background: orange;
+            }
+          </style>
+
+          <div class="col-12 sticky-top bg-white">
+            <div class="alert alert-warning alert-dismissible fade show" role="alert" v-if="message">
+              <strong>Success</strong> Order Successful
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close" @click="message = false">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+
+
+            <h1 class="display-4">
+              <div class="font-weight-bolder text-center my-5">Subjects Of Education</div>
+              <button class="float-right btn btn-link btn-md mt-3 bg-dark position-relative" v-if='cart_items_count > 0'
+                @click="cart = !cart">
+                <i class="fas fa-shopping-cart"></i>
+                Cart
+                <span class="badge badge-primary"
+                  style="position: absolute; top: -5px; right: -20px;">{{cart_items_count}}
+                  items</span>
+              </button>
+            </h1>
+
+            <div class="row">
+              <div class="col-12 col-sm-6">
+                <div class="input-group mb-3 mr-sm-4">
+                  <input type="search" v-model="search" @input="doSearch" class="form-control"
+                    placeholder="Search Subjects....." aria-label="Search Subjects.....">
+                  <div class="input-group-append ">
+                    <span class="fa fa-search input-group-text bg-dark text-primary pt-2"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-8 col-sm-6">
+                <div class="form-group row">
+                  <div class="col-8">
+                    <select type="search" v-model="sort_by" @change="doSort('desc')" class="form-control">
+                      <option v-for="(key, index) in sort_params" :key="index+'sp'" :value="key">
+                        Sort: {{key}}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-4 px-1">
+                    <button class="btn btn-link text-primary bg-dark" @click="doSort('asc')">
+                      <i class="fa fa-chevron-circle-up"></i>
+                    </button>
+                    <button class="btn btn-link text-primary bg-dark" @click="doSort('desc')">
+                      <i class="fa fa-chevron-circle-down"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+            <hr class="border-dark" />
+          </div>
+
+
+          <div class="cart w-100" v-if="cart && cart_items_count > 0">
+            <div class="container">
+              <div>
+
+
+                <div class="row ">
+                  <div class="col-12">
+                    <h2 class="font-weight-bolder mt-0">
+                      <button class="btn btn-link bg-dark btn-dark mr-2" @click="cart = !cart">
+                        <i class="fa fa-chevron-left"></i>
+                      </button>
+                      Basket
+                    </h2>
+                    <p>{{cart_items_count}} items</p>
+                  </div>
+                  <div class="col-12" v-for="(item, index) in shopping_cart_items" :key="index">
+                    <div class="d-flex justify-content-betweem py-2">
+                      <div class="media py-2">
+                        <img class="mr-3" width="72px" :src="item.image" alt="Generic placeholder image">
+                        <div class="media-body">
+                          <h6>{{item.subject}}</h6>
+                          <p class="mt-0">{{item.location}}</p>
+                          <span class="font-weight-bolder float-left">
+                            <span>${{item.price}}</span>
+                          </span>
+                        </div>
+                      </div>
+
+                      <button style="max-height: 80px !important;"
+                        class="btn text-danger font-weight-bolder bg-warning btn-sm ml-auto pull-right"
+                        @click="removeFromCart(item)">
+                        <i class="fa fa-trash"></i> Remove
+                      </button>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card-action">
+                <a class="btn text-primary bg-dark" href="#checkout" @click="checkout = true">
+                  Proceed To Checkout
+                </a>
+              </div>
+
+
+
+              <div class="card-text row w-50" v-if="checkout">
+                <form @submit.prevent="checkout" class="col-12 col-sm-8" id="checkout">
+                  <h2 class="font-weight-bolder mt-4">Checkout</h2>
+                  <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" v-model="name" @input="validateName" class="form-control"
+                      placeholder="Enter Full Name">
+                  </div>
+                  <div class="form-group">
+                    <label>Phone</label>
+                    <input type="number" v-model="phone" @input="validatePhone" class="form-control"
+                      placeholder="Enter Phone number">
+                  </div>
+                  <button class="btn text-primary bg-dark" v-if="is_valid_name && is_valid_phone"
+                    v-on:click="doPlaceOrder">
+                    Checkout
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+
+          <div v-else class="col-12" v-for="(lesson, index) in filteredLessons">
+            <div class="card my-2 border-0 shadow d-flex flex-row" style="height: 200px;">
+              <img class="card-img-top w-25" :src="BACKEND_URL + '/public/' + lesson.image.split('/').pop()"
+                alt="Card image cap">
+              <div class="card-body d-flex flex-column justify-content-between">
+                <div class="card-top">
+                  <i :class="`text-primary bg-dark icon fa ${lesson.icon}`"></i>
+                  <h4>{{lesson.subject}}</h4>
+                  <h6 class="card-title">Location: {{lesson.location}}</h6>
+                </div>
+
+                <div class="card-text mt-2">
+                  <span class="font-weight-bold float-left">
+                    <span>${{lesson.price}}</span>
+                    <br />
+                    <span class="badge badge-dark text-primary" v-if="lesson.space > 0">
+                      {{lesson.space}} Spaces
+                    </span>
+                  </span>
+                  <button :disabled="lesson.space == 0"
+                    class="btn text-primary btn-dark mt-2 btn-sm float-md-right text-uppercase"
+                    @click="addToCart(lesson)">
+                    Add To Basket
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </section>
+
+
+
+  </div>
+
+  <!-- <script src="./lessons.js"></script> -->
+  <script type="module">
+    const BACKEND_URL = 'https://nodejs-vue-backend.herokuapp.com';
+
+    fetch(BACKEND_URL + '/lessons')
+      .then(res => res.json())
+      .then(lessons => {
+
+        new Vue({
+
+          data() {
+            return {
+              BACKEND_URL,
+
+              search: '',
+              lessons: lessons,
+              space: 5,
+              cart: false,
+              checkout: false,
+              shopping_cart_items: [],
+              search: "",
+              name: "",
+              phone: "",
+              is_valid_name: false,
+              is_valid_phone: false,
+              message: false,
+              sort_by: 'location',
+              sort_params: ['Subject', 'Location', 'Price', 'Space']
+            };
+          },
+
+          computed: {
+            filteredLessons: function () {
+              return this.lessons;
+            },
+
+            cart_items_count() {
+              return this.shopping_cart_items.length;
+            }
+          },
+
+          methods: {
+
+            addToCart(lesson) {
+              if (lesson.space > 0) {
+                let lessonIndex = this.lessons.findIndex((obj) => obj.image === lesson.image);
+                if (this.lessons[lessonIndex]?.space > 0) {
+                  this.shopping_cart_items.push(lesson);
+                  this.lessons[lessonIndex].space--;
+                } else this.shopping_cart_items.push(lesson);
+              }
+
+            },
+
+            removeFromCart(lesson) {
+              let lessonIndex = this.lessons.findIndex((obj) => obj.image === lesson.image);
+              let cartIndex = this.shopping_cart_items.findIndex((obj) => obj.image === lesson.image);
+              if (this.lessons[lessonIndex]?.space < 5) {
+                this.shopping_cart_items.pop(this.shopping_cart_items[cartIndex]);
+                this.lessons[lessonIndex].space++;
+              } else this.shopping_cart_items.pop(this.shopping_cart_items[cartIndex]);
+              if (this.shopping_cart_items?.length == 0) {
+                this.cart = false;
+              }
+            },
+
+            doSearch() {
+              fetch(BACKEND_URL + '/search' + `?q=${this.search}`)
+                .then(res => res.json())
+                .then(lessons => this.lessons = lessons);
+            },
+
+            doSort(order) {
+              console.log(this.sort_by);
+              if (order == 'desc') {
+                this.lessons.sort((a, b) => a[this.sort_by] < b[this.sort_by] ? 1 : -1);
+              } else this.lessons.sort((a, b) => a[this.sort_by] > b[this.sort_by] ? 1 : -1);
+            },
+
+            validateName() {
+              this.is_valid_name = /^[a-zA-Z]+$/.test(this.name) ? true : false;
+              console.log(this.is_valid_name);
+            },
+
+            validatePhone() {
+              this.is_valid_phone = /^[0-9]+$/.test(this.phone) ? true : false;
+              console.log(this.is_valid_phone);
+            },
+
+            doPlaceOrder(e) {
+              e.preventDefault();
+
+              let items = {};
+
+              // Cleaning the data 
+              this.shopping_cart_items.forEach(item => {
+                if (items[item._id]) {
+                  items[item._id].space++;
+                } else {
+                  items[item._id] = { space: 1 };
+                }
+              });
+
+              items = Object.keys(items).map(key => {
+                return {
+                  _id: key,
+                  space: items[key].space
+                };
+              });
+
+
+              const data = {
+                name: this.name,
+                phone: this.phone,
+                items
+              };
+
+              fetch(BACKEND_URL + '/checkout', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+              }).then(res => {
+                if (res.ok)
+                  return res.json();
+              }).then(orderRegistered => {
+                const { insertedId } = orderRegistered.order;
+                fetch(BACKEND_URL + '/lessons/' + insertedId, {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  }
+                })
+                  .then(res => {
+                    if (res.ok) {
+                      this.shopping_cart_items = [];
+                      this.cart = false;
+                      this.checkout = false;
+                      this.message = true;
+                    }
+                  });
+              });
+            }
+          },
+
+        })
+          .$mount('#app');
+      })
+  </script>
+</body>
+
+</html>
